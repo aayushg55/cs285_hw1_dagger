@@ -158,14 +158,3 @@ class MLPPolicySL(BasePolicy, nn.Module, metaclass=abc.ABCMeta):
             # You can add extra logging information here, but keep this line
             'Training Loss': ptu.to_numpy(loss),
         }
-        
-    def get_action(self, obs):
-        if len(obs.shape) > 1:
-            observation = obs
-        else:
-            observation = obs[None, :]
-            
-        observation = ptu.from_numpy(observation.astype(np.float32))
-        dist = self(observation)
-        action = dist.sample()
-        return ptu.to_numpy(action)

@@ -146,7 +146,6 @@ def run_training_loop(params):
                 # and replace paths[i]["action"] with these expert labels
                 for i in range(len(paths)):
                     paths[i]['action'] = expert_policy.get_action(paths[i]["observation"])
-                # paths[:, 'action'] = expert_policy.get_action(paths[:, "observation"])
 
         total_envsteps += envsteps_this_batch
         # add collected data to replay buffer
