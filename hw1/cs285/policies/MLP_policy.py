@@ -132,8 +132,8 @@ class MLPPolicySL(BasePolicy, nn.Module, metaclass=abc.ABCMeta):
         dist_mean = self.mean_net(observation)
         dist_cov = torch.diag(torch.exp(self.logstd))
         dist_cov = dist_cov.repeat(dist_mean.shape[0], 1, 1)
-        m = distributions.MultivariateNormal(dist_mean, dist_cov)
-        return m
+        dist = distributions.MultivariateNormal(dist_mean, dist_cov)
+        return dist
         
     def update(self, observations, actions):
         """
@@ -146,9 +146,9 @@ class MLPPolicySL(BasePolicy, nn.Module, metaclass=abc.ABCMeta):
         """
         # TODO: update the policy and return the loss
         observations = ptu.from_numpy(observations)
-        m = self.forward(observations)
+        dist = self(observations)
         actions = ptu.from_numpy(actions)
-        loss = -m.log_prob(actions).mean()
+        loss = -dist.log_prob(actions).mean()
         
         self.optimizer.zero_grad()
         loss.backward()
@@ -166,6 +166,6 @@ class MLPPolicySL(BasePolicy, nn.Module, metaclass=abc.ABCMeta):
             observation = obs[None, :]
             
         observation = ptu.from_numpy(observation.astype(np.float32))
-        m = self(observation)
-        action = m.sample()
+        dist = self(observation)
+        action = dist.sample()
         return ptu.to_numpy(action)

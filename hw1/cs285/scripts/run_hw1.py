@@ -68,7 +68,8 @@ def run_training_loop(params):
     # Maximum length for episodes
     params['ep_len'] = params['ep_len'] or env.spec.max_episode_steps
     MAX_VIDEO_LEN = params['ep_len']
-
+    params['eval_batch_size'] = params['ep_len'] * 5
+    print('ep_len is ', MAX_VIDEO_LEN)
     assert isinstance(env.action_space, gym.spaces.Box), "Environment must be continuous"
     # Observation and action sizes
     ob_dim = env.observation_space.shape[0]
@@ -143,8 +144,9 @@ def run_training_loop(params):
                 # TODO: relabel collected obsevations (from our policy) with labels from expert policy
                 # HINT: query the policy (using the get_action function) with paths[i]["observation"]
                 # and replace paths[i]["action"] with these expert labels
-                # paths[:, 'action'] = [expert_policy.get_action(paths[i]["observation"]) for i in range(len(paths))]
-                paths[:, 'action'] = expert_policy.get_action(paths[:, "observation"])
+                for i in range(len(paths)):
+                    paths[i]['action'] = expert_policy.get_action(paths[i]["observation"])
+                # paths[:, 'action'] = expert_policy.get_action(paths[:, "observation"])
 
         total_envsteps += envsteps_this_batch
         # add collected data to replay buffer
@@ -154,17 +156,16 @@ def run_training_loop(params):
         print('\nTraining agent using sampled data from replay buffer...')
         training_logs = []
         for _ in range(params['num_agent_train_steps_per_iter']):
-
-          # TODO: sample some data from replay_buffer
-          # HINT1: how much data = params['train_batch_size']
-          # HINT2: use np.random.permutation to sample random indices
-          # HINT3: return corresponding data points from each array (i.e., not different indices from each array)
-          # for imitation learning, we only need observations and actions.            
-          ob_batch, ac_batch = replay_buffer.sample_data(params['train_batch_size'])
-          
-          # use the sampled data to train an agent
-          train_log = actor.update(ob_batch, ac_batch)
-          training_logs.append(train_log)
+            # TODO: sample some data from replay_buffer
+            # HINT1: how much data = params['train_batch_size']
+            # HINT2: use np.random.permutation to sample random indices
+            # HINT3: return corresponding data points from each array (i.e., not different indices from each array)
+            # for imitation learning, we only need observations and actions.            
+            ob_batch, ac_batch = replay_buffer.sample_data(params['train_batch_size'])
+            
+            # use the sampled data to train an agent
+            train_log = actor.update(ob_batch, ac_batch)
+            training_logs.append(train_log)
 
         # log/save
         print('\nBeginning logging procedure...')

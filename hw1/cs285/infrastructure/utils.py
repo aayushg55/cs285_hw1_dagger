@@ -37,16 +37,16 @@ def sample_trajectory(env, policy, max_path_length, render=False):
         ac = ac[0]
 
         # TODO: take that action and get reward and next ob
-        next_ob, rew, done, _ = env.step(ac)
+        next_ob, reward, done, _ = env.step(ac)
         
         # TODO rollout can end due to done, or due to max_path_length
         steps += 1
-        rollout_done = done or (steps > max_path_length) # HINT: this is either 0 or 1
+        rollout_done = done or (steps >= max_path_length) # HINT: this is either 0 or 1
         
         # record result of taking that action
         obs.append(ob)
         acs.append(ac)
-        rewards.append(rew)
+        rewards.append(reward)
         next_obs.append(next_ob)
         terminals.append(rollout_done)
 
