@@ -1,0 +1,22 @@
+Section 3 Part 1
+python cs285/scripts/run_hw1.py \
+--expert_policy_file cs285/policies/experts/Ant.pkl \   
+--env_name Ant-v4 --exp_name bc_ant --n_iter 1 \      
+--expert_data cs285/expert_data/expert_data_Ant-v4.pkl \   
+--video_log_freq -1
+
+Eval_AverageReturn : 3973.072998046875
+Eval_StdReturn : 815.13037109375
+Eval_MaxReturn : 4448.1796875
+Eval_MinReturn : 2160.96728515625
+Eval_AverageEpLen : 916.3333333333334
+Train_AverageReturn : 4681.891673935816
+Train_StdReturn : 30.70862278765526
+Train_MaxReturn : 4712.600296723471
+Train_MinReturn : 4651.18305114816
+Train_AverageEpLen : 1000.0
+Training Loss : -11.024508476257324
+Train_EnvstepsSoFar : 0
+TimeSinceStart : 4.074450969696045
+Initial_DataCollection_AverageReturn : 4681.891673935816
+Done logging...

@@ -1,0 +1,171 @@
+
+
+100
+Eval_AverageReturn : 148.2243194580078
+/Users/aayushgupta/miniconda3/envs/cs285/lib/python3.9/site-packages/tensorboardX/summary.py:153: DeprecationWarning: Conversion of an array with ndim > 0 to a scalar is deprecated, and will error in future. Ensure you extract a single element from your array before performing this operation. (Deprecated NumPy 1.25.)
+  scalar = float(scalar)
+Eval_StdReturn : 105.41321563720703
+Eval_MaxReturn : 458.9340515136719
+
+250
+Eval_AverageReturn : 421.89544677734375
+/Users/aayushgupta/miniconda3/envs/cs285/lib/python3.9/site-packages/tensorboardX/summary.py:153: DeprecationWarning: Conversion of an array with ndim > 0 to a scalar is deprecated, and will error in future. Ensure you extract a single element from your array before performing this operation. (Deprecated NumPy 1.25.)
+  scalar = float(scalar)
+Eval_StdReturn : 308.8132019042969
+
+500
+Eval_AverageReturn : 654.3477172851562
+/Users/aayushgupta/miniconda3/envs/cs285/lib/python3.9/site-packages/tensorboardX/summary.py:153: DeprecationWarning: Conversion of an array with ndim > 0 to a scalar is deprecated, and will error in future. Ensure you extract a single element from your array before performing this operation. (Deprecated NumPy 1.25.)
+  scalar = float(scalar)
+Eval_StdReturn : 289.3446044921875
+Eval_MaxReturn : 1340.6834716796875
+Eval_MinReturn : 156.11151123046875
+Eval_AverageEpLen : 228.6086956521739
+Train_AverageReturn : 3717.5129936182307
+Train_StdReturn : 0.3530361779417035
+Train_MaxReturn : 3717.8660297961724
+Train_MinReturn : 3717.159957440289
+Train_AverageEpLen : 1000.0
+Training Loss : -0.5428670048713684
+Train_EnvstepsSoFar : 0
+TimeSinceStart : 1.9216902256011963
+Initial_DataCollection_AverageReturn : 3717.5129936182307
+Done logging...
+
+750
+Eval_AverageReturn : 758.3198852539062
+/Users/aayushgupta/miniconda3/envs/cs285/lib/python3.9/site-packages/tensorboardX/summary.py:153: DeprecationWarning: Conversion of an array with ndim > 0 to a scalar is deprecated, and will error in future. Ensure you extract a single element from your array before performing this operation. (Deprecated NumPy 1.25.)
+  scalar = float(scalar)
+Eval_StdReturn : 292.0293884277344
+
+--num_agent_train_steps_per_iter 1000
+Eval_AverageReturn : 993.5955200195312
+Eval_StdReturn : 323.47882080078125
+Eval_MaxReturn : 1804.592041015625
+Eval_MinReturn : 523.9010620117188
+Eval_AverageEpLen : 314.25
+Train_AverageReturn : 3717.5129936182307
+Train_StdReturn : 0.3530361779417035
+Train_MaxReturn : 3717.8660297961724
+Train_MinReturn : 3717.159957440289
+Train_AverageEpLen : 1000.0
+Training Loss : -2.7476389408111572
+Train_EnvstepsSoFar : 0
+TimeSinceStart : 2.355756998062134
+Initial_DataCollection_AverageReturn : 3717.5129936182307
+Done logging...
+
+2000
+Eval_AverageReturn : 1127.929443359375
+Eval_StdReturn : 433.25738525390625
+Eval_MaxReturn : 2017.9111328125
+Eval_MinReturn : 461.867919921875
+Eval_AverageEpLen : 337.1333333333333
+Train_AverageReturn : 3717.5129936182307
+Train_StdReturn : 0.3530361779417035
+Train_MaxReturn : 3717.8660297961724
+Train_MinReturn : 3717.159957440289
+Train_AverageEpLen : 1000.0
+Training Loss : -4.770364284515381
+Train_EnvstepsSoFar : 0
+TimeSinceStart : 3.99926495552063
+Initial_DataCollection_AverageReturn : 3717.5129936182307
+Done logging...
+
+3000
+Eval_AverageReturn : 1615.3511962890625
+/Users/aayushgupta/miniconda3/envs/cs285/lib/python3.9/site-packages/tensorboardX/summary.py:153: DeprecationWarning: Conversion of an array with ndim > 0 to a scalar is deprecated, and will error in future. Ensure you extract a single element from your array before performing this operation. (Deprecated NumPy 1.25.)
+  scalar = float(scalar)
+Eval_StdReturn : 757.0479125976562
+Eval_MaxReturn : 3509.882568359375
+Eval_MinReturn : 889.7879638671875
+Eval_AverageEpLen : 468.90909090909093
+Train_AverageReturn : 3717.5129936182307
+Train_StdReturn : 0.3530361779417035
+Train_MaxReturn : 3717.8660297961724
+Train_MinReturn : 3717.159957440289
+Train_AverageEpLen : 1000.0
+Training Loss : -5.407071590423584
+Train_EnvstepsSoFar : 0
+TimeSinceStart : 4.627770900726318
+Initial_DataCollection_AverageReturn : 3717.5129936182307
+Done logging...
+
+4000
+Eval_AverageReturn : 1358.6236572265625
+Eval_StdReturn : 576.69775390625
+Eval_MaxReturn : 2697.023193359375
+Eval_MinReturn : 649.560546875
+Eval_AverageEpLen : 386.3076923076923
+Train_AverageReturn : 3717.5129936182307
+Train_StdReturn : 0.3530361779417035
+Train_MaxReturn : 3717.8660297961724
+Train_MinReturn : 3717.159957440289
+Train_AverageEpLen : 1000.0
+Training Loss : -4.840769290924072
+Train_EnvstepsSoFar : 0
+TimeSinceStart : 6.53591775894165
+Initial_DataCollection_AverageReturn : 3717.5129936182307
+Done logging...
+
+5000
+Eval_AverageReturn : 1104.671630859375
+/Users/aayushgupta/miniconda3/envs/cs285/lib/python3.9/site-packages/tensorboardX/summary.py:153: DeprecationWarning: Conversion of an array with ndim > 0 to a scalar is deprecated, and will error in future. Ensure you extract a single element from your array before performing this operation. (Deprecated NumPy 1.25.)
+  scalar = float(scalar)
+Eval_StdReturn : 467.54498291015625
+
+6000
+Eval_AverageReturn : 1300.9091796875
+/Users/aayushgupta/miniconda3/envs/cs285/lib/python3.9/site-packages/tensorboardX/summary.py:153: DeprecationWarning: Conversion of an array with ndim > 0 to a scalar is deprecated, and will error in future. Ensure you extract a single element from your array before performing this operation. (Deprecated NumPy 1.25.)
+  scalar = float(scalar)
+Eval_StdReturn : 295.8316650390625
+Eval_MaxReturn : 1753.50244140625
+Eval_MinReturn : 746.057373046875
+Eval_AverageEpLen : 370.35714285714283
+Train_AverageReturn : 3717.5129936182307
+Train_StdReturn : 0.3530361779417035
+Train_MaxReturn : 3717.8660297961724
+Train_MinReturn : 3717.159957440289
+Train_AverageEpLen : 1000.0
+Training Loss : -6.6497955322265625
+Train_EnvstepsSoFar : 0
+TimeSinceStart : 7.839756011962891
+Initial_DataCollection_AverageReturn : 3717.5129936182307
+Done logging...
+
+8000
+Eval_AverageReturn : 1735.2125244140625
+/Users/aayushgupta/miniconda3/envs/cs285/lib/python3.9/site-packages/tensorboardX/summary.py:153: DeprecationWarning: Conversion of an array with ndim > 0 to a scalar is deprecated, and will error in future. Ensure you extract a single element from your array before performing this operation. (Deprecated NumPy 1.25.)
+  scalar = float(scalar)
+Eval_StdReturn : 731.2991333007812
+Eval_MaxReturn : 3731.58349609375
+Eval_MinReturn : 1072.044921875
+Eval_AverageEpLen : 477.3636363636364
+Train_AverageReturn : 3717.5129936182307
+Train_StdReturn : 0.3530361779417035
+Train_MaxReturn : 3717.8660297961724
+Train_MinReturn : 3717.159957440289
+Train_AverageEpLen : 1000.0
+Training Loss : -6.546648979187012
+Train_EnvstepsSoFar : 0
+TimeSinceStart : 10.009522914886475
+Initial_DataCollection_AverageReturn : 3717.5129936182307
+Done logging...
+
+
+
+
+
+
+
+
+Eval_AverageReturn : 956.781494140625
+/Users/aayushgupta/miniconda3/envs/cs285/lib/python3.9/site-packages/tensorboardX/summary.py:153: DeprecationWarning: Conversion of an array with ndim > 0 to a scalar is deprecated, and will error in future. Ensure you extract a single element from your array before performing this operation. (Deprecated NumPy 1.25.)
+  scalar = float(scalar)
+Eval_StdReturn : 287.915771484375
+
+Eval_AverageReturn : 762.3677368164062
+/Users/aayushgupta/miniconda3/envs/cs285/lib/python3.9/site-packages/tensorboardX/summary.py:153: DeprecationWarning: Conversion of an array with ndim > 0 to a scalar is deprecated, and will error in future. Ensure you extract a single element from your array before performing this operation. (Deprecated NumPy 1.25.)
+  scalar = float(scalar)
+Eval_StdReturn : 325.1846618652344
+Eval_MaxReturn : 1731.2415771484375
