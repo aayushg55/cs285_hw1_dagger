@@ -133,6 +133,7 @@ class MLPPolicySL(BasePolicy, nn.Module, metaclass=abc.ABCMeta):
         dist_cov = torch.diag(torch.exp(self.logstd))
         dist_cov = dist_cov.repeat(dist_mean.shape[0], 1, 1)
         dist = distributions.MultivariateNormal(dist_mean, dist_cov)
+        print(dist.shape)
         return dist
         
     def update(self, observations, actions):
