@@ -73,7 +73,7 @@ class PGAgent(nn.Module):
         rewards = np.concatenate(rewards)
         terminals = np.concatenate(terminals)
         q_values = np.concatenate(q_values)
-        
+        assert(obs.shape[0] == actions.shape[0] == rewards.shape[0] == terminals.shape[0] == q_values.shape[0])
         # step 2: calculate advantages from Q values
         advantages: np.ndarray = self._estimate_advantage(
             obs, rewards, q_values, terminals
@@ -125,7 +125,7 @@ class PGAgent(nn.Module):
         """
         if self.critic is None:
             # TODO: if no baseline, then what are the advantages?
-            advantages = rewards
+            advantages = q_values
         else:
             # TODO: run the critic and use it as a baseline
             values = self.critic(obs)
@@ -133,7 +133,7 @@ class PGAgent(nn.Module):
 
             if self.gae_lambda is None:
                 # TODO: if using a baseline, but not GAE, what are the advantages?
-                advantages = rewards - values
+                advantages = q_values - values
             else:
                 # TODO: implement GAE
                 batch_size = obs.shape[0]
@@ -153,7 +153,8 @@ class PGAgent(nn.Module):
 
         # TODO: normalize the advantages to have a mean of zero and a standard deviation of one within the batch
         if self.normalize_advantages:
-            pass
+            mean, std = advantages.mean(axis=0), advantages.std(axis=0)
+            advantages = (advantages-mean)/(std+10**-5)
 
         return advantages
 

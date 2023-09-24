@@ -37,6 +37,7 @@ class ValueCritic(nn.Module):
     def forward(self, obs: torch.Tensor) -> torch.Tensor:
         # TODO: implement the forward pass of the critic network
         val = self.network(obs)
+        # print(obs, val)
         return val
         
 
