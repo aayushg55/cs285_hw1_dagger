@@ -68,6 +68,12 @@ class PGAgent(nn.Module):
         # way. obs, actions, rewards, terminals, and q_values should all be arrays with a leading dimension of `batch_size`
         # beyond this point.
 
+        obs = np.concatenate(obs)
+        actions = np.concatenate(actions)
+        rewards = np.concatenate(rewards)
+        terminals = np.concatenate(terminals)
+        q_values = np.concatenate(q_values)
+        
         # step 2: calculate advantages from Q values
         advantages: np.ndarray = self._estimate_advantage(
             obs, rewards, q_values, terminals
@@ -75,13 +81,17 @@ class PGAgent(nn.Module):
 
         # step 3: use all datapoints (s_t, a_t, adv_t) to update the PG actor/policy
         # TODO: update the PG actor/policy network once using the advantages
-        info: dict = None
+        info: dict = self.actor.update(obs, actions, advantages)
 
         # step 4: if needed, use all datapoints (s_t, a_t, q_t) to update the PG critic/baseline
         if self.critic is not None:
             # TODO: perform `self.baseline_gradient_steps` updates to the critic/baseline network
+            critic_logs = []
             critic_info: dict = None
-
+            for _ in range(self.baseline_gradient_steps):
+               critic_logs.append(self.critic.update(obs, actions, advantages))
+               
+            critic_info = critic_info[-1]
             info.update(critic_info)
 
         return info
@@ -94,13 +104,12 @@ class PGAgent(nn.Module):
             # trajectory at each point.
             # In other words: Q(s_t, a_t) = sum_{t'=0}^T gamma^t' r_{t'}
             # TODO: use the helper function self._discounted_return to calculate the Q-values
-            q_values = None
+            q_values = [self._discounted_return(reward) for reward in rewards]
         else:
             # Case 2: in reward-to-go PG, we only use the rewards after timestep t to estimate the Q-value for (s_t, a_t).
             # In other words: Q(s_t, a_t) = sum_{t'=t}^T gamma^(t'-t) * r_{t'}
             # TODO: use the helper function self._discounted_reward_to_go to calculate the Q-values
-            q_values = None
-
+            q_values = [self._discounted_reward_to_go(reward) for reward in rewards]
         return q_values
 
     def _estimate_advantage(
@@ -116,15 +125,15 @@ class PGAgent(nn.Module):
         """
         if self.critic is None:
             # TODO: if no baseline, then what are the advantages?
-            advantages = None
+            advantages = rewards
         else:
             # TODO: run the critic and use it as a baseline
-            values = None
+            values = self.critic(obs)
             assert values.shape == q_values.shape
 
             if self.gae_lambda is None:
                 # TODO: if using a baseline, but not GAE, what are the advantages?
-                advantages = None
+                advantages = rewards - values
             else:
                 # TODO: implement GAE
                 batch_size = obs.shape[0]
@@ -156,7 +165,9 @@ class PGAgent(nn.Module):
         Note that all entries of the output list should be the exact same because each sum is from 0 to T (and doesn't
         involve t)!
         """
-        return None
+        disc_returns = sum([rewards[i]* (self.gamma**i) for i in range(len(rewards))])
+        disc_returns = [disc_returns] * len(rewards)
+        return disc_returns
 
 
     def _discounted_reward_to_go(self, rewards: Sequence[float]) -> Sequence[float]:
@@ -164,4 +175,12 @@ class PGAgent(nn.Module):
         Helper function which takes a list of rewards {r_0, r_1, ..., r_t', ... r_T} and returns a list where the entry
         in each index t' is sum_{t'=t}^T gamma^(t'-t) * r_{t'}.
         """
-        return None
+        disc_returns_to_go = np.zeros_like(rewards)
+        t = len(rewards)
+        
+        cum_sum = 0
+        for i in range(t-1, -1, -1):
+            cur_reward = (self.gamma ** (i)) * rewards[i]
+            disc_returns_to_go[i] = cum_sum + cur_reward
+            cum_sum += cur_reward
+        return disc_returns_to_go
