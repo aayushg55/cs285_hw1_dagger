@@ -78,7 +78,7 @@ class PGAgent(nn.Module):
         advantages: np.ndarray = self._estimate_advantage(
             obs, rewards, q_values, terminals
         )
-
+        # print(obs.shape[1], actions.shape, rewards.shape, terminals.shape, q_values.shape)
         # step 3: use all datapoints (s_t, a_t, adv_t) to update the PG actor/policy
         # TODO: update the PG actor/policy network once using the advantages
         info: dict = self.actor.update(obs, actions, advantages)
@@ -89,9 +89,9 @@ class PGAgent(nn.Module):
             critic_logs = []
             critic_info: dict = None
             for _ in range(self.baseline_gradient_steps):
-               critic_logs.append(self.critic.update(obs, actions, advantages))
+               critic_logs.append(self.critic.update(obs, q_values))
                
-            critic_info = critic_info[-1]
+            critic_info = critic_logs[-1]
             info.update(critic_info)
 
         return info
@@ -128,7 +128,11 @@ class PGAgent(nn.Module):
             advantages = q_values
         else:
             # TODO: run the critic and use it as a baseline
-            values = self.critic(obs)
+            values = self.critic(ptu.from_numpy(obs))
+            values = ptu.to_numpy(values)
+            if len(q_values.shape) == 1:
+                q_values = np.expand_dims(q_values, -1)
+            print(obs.shape, values.shape, q_values.shape)
             assert values.shape == q_values.shape
 
             if self.gae_lambda is None:

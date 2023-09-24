@@ -24,18 +24,20 @@ def sample_trajectory(
             if hasattr(env, "sim"):
                 img = env.sim.render(camera_name="track", height=500, width=500)[::-1]
             else:
-                img = env.render(mode="single_rgb_array")
+                img = env.render()
+                # img = env.render(mode="single_rgb_array")
             image_obs.append(
                 cv2.resize(img, dsize=(250, 250), interpolation=cv2.INTER_CUBIC)
             )
 
         # TODO use the most recent ob and the policy to decide what to do
         # ob = ptu.from_numpy(ob)
+        if type(ob) is tuple:
+            ob = ob[0]
         ac: np.ndarray = policy.get_action(ob)
-        
         # TODO: use that action to take a step in the environment
-        next_ob, rew, done, _ = env.step(ac)
-
+        env_resp = env.step(ac)
+        next_ob, rew, done = env_resp[:3]
         # TODO rollout can end due to done, or due to max_length
         steps += 1
         rollout_done: bool = done or (steps >= max_length)

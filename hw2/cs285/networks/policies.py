@@ -77,7 +77,12 @@ class MLPPolicy(nn.Module):
         else:
             # TODO: define the forward pass for a policy with a continuous action space.
             mean = self.mean_net(obs)
-            dist = distributions.Normal(mean, torch.exp(self.logstd))
+            # print(obs.shape, mean.shape)
+            dist_cov = torch.diag(torch.exp(self.logstd))
+            if len(mean.shape) > 1: # handle batch size
+                dist_cov = dist_cov.repeat(mean.shape[0], 1, 1)
+            dist = distributions.MultivariateNormal(mean, dist_cov)
+            # dist = distributions.Normal(mean, torch.exp(self.logstd))
         return dist
 
     def update(self, obs: np.ndarray, actions: np.ndarray, *args, **kwargs) -> dict:
@@ -100,7 +105,9 @@ class MLPPolicyPG(MLPPolicy):
         advantages = ptu.from_numpy(advantages)
 
         dist = self.forward(obs)
-        loss = -1 * (dist.log_prob(actions) * advantages).mean()
+        logits = dist.log_prob(actions)
+        # print(logits.shape, obs.shape, actions.shape, advantages.shape)
+        loss = -1 * (logits * advantages).mean()
         
         self.optimizer.zero_grad()
         loss.backward()
