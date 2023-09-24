@@ -47,6 +47,7 @@ class ValueCritic(nn.Module):
 
         # TODO: update the critic using the observations and q_values
         pred_val = self.forward(obs)
+        pred_val = torch.squeeze(pred_val)
         loss = torch.nn.functional.mse_loss(pred_val, q_values, reduction='mean')
 
         self.optimizer.zero_grad()

@@ -75,6 +75,7 @@ def sample_trajectories(
     """Collect rollouts using policy until we have collected min_timesteps_per_batch steps."""
     timesteps_this_batch = 0
     trajs = []
+    # print('min_timesteps_per_batch: {0}, max_len {1}'.format(min_timesteps_per_batch, max_length))
     while timesteps_this_batch < min_timesteps_per_batch:
         # collect rollout
         traj = sample_trajectory(env, policy, max_length, render)
