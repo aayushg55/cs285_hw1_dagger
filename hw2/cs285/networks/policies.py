@@ -73,7 +73,7 @@ class MLPPolicy(nn.Module):
         if self.discrete:
             # TODO: define the forward pass for a policy with a discrete action space.
             logits = self.logits_net(obs)
-            dist = torch.distributions.categorical.Categorical(logits=logits)
+            dist = torch.distributions.Categorical(logits=logits)
         else:
             # TODO: define the forward pass for a policy with a continuous action space.
             mean = self.mean_net(obs)

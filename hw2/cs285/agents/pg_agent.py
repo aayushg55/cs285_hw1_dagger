@@ -63,7 +63,8 @@ class PGAgent(nn.Module):
 
         # step 1: calculate Q values of each (s_t, a_t) point, using rewards (r_0, ..., r_t, ..., r_T)
         q_values: Sequence[np.ndarray] = self._calculate_q_vals(rewards)
-
+        # print('HELLOOOHO')
+        # print('q, rew, gamma:', q_values, rewards, self.gamma)
         # TODO: flatten the lists of arrays into single arrays, so that the rest of the code can be written in a vectorized
         # way. obs, actions, rewards, terminals, and q_values should all be arrays with a leading dimension of `batch_size`
         # beyond this point.
@@ -73,11 +74,13 @@ class PGAgent(nn.Module):
         rewards = np.concatenate(rewards)
         terminals = np.concatenate(terminals)
         q_values = np.concatenate(q_values)
+
         assert(obs.shape[0] == actions.shape[0] == rewards.shape[0] == terminals.shape[0] == q_values.shape[0])
         # step 2: calculate advantages from Q values
         advantages: np.ndarray = self._estimate_advantage(
             obs, rewards, q_values, terminals
         )
+        # print('advantage:', advantages)
         # print(obs.shape[1], actions.shape, rewards.shape, terminals.shape, q_values.shape)
         # step 3: use all datapoints (s_t, a_t, adv_t) to update the PG actor/policy
         # TODO: update the PG actor/policy network once using the advantages
@@ -90,7 +93,7 @@ class PGAgent(nn.Module):
             critic_info: dict = None
             for _ in range(self.baseline_gradient_steps):
                critic_logs.append(self.critic.update(obs, q_values))
-               
+            print(critic_logs)
             critic_info = critic_logs[-1]
             info.update(critic_info)
 
@@ -132,7 +135,9 @@ class PGAgent(nn.Module):
             values = ptu.to_numpy(values)
             if len(q_values.shape) == 1:
                 q_values = np.expand_dims(q_values, -1)
-            print(obs.shape, values.shape, q_values.shape)
+                
+            # values = values * np.std(q_values) + np.mean(q_values)
+            # print(obs.shape, values.shape, q_values.shape)
             assert values.shape == q_values.shape
 
             if self.gae_lambda is None:
@@ -158,7 +163,7 @@ class PGAgent(nn.Module):
         # TODO: normalize the advantages to have a mean of zero and a standard deviation of one within the batch
         if self.normalize_advantages:
             mean, std = np.mean(advantages), np.std(advantages)
-            advantages = (advantages-mean)/(std+10**-5)
+            advantages = (advantages-mean)/(std+1e-8)
 
         return advantages
 
@@ -172,6 +177,7 @@ class PGAgent(nn.Module):
         """
         disc_returns = sum([rewards[i]* (self.gamma**i) for i in range(len(rewards))])
         disc_returns = [disc_returns] * len(rewards)
+        # print(np.all(np.isclose(list_of_discounted_returns, disc_returns, rtol=10**-5)))
         return disc_returns
 
 
@@ -189,5 +195,4 @@ class PGAgent(nn.Module):
             disc_matrix[col:, col] = discounts[:-col] if col != 0 else discounts
                 
         disc_returns_to_go = rewards @ disc_matrix
-
         return disc_returns_to_go

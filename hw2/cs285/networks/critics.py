@@ -43,12 +43,17 @@ class ValueCritic(nn.Module):
 
     def update(self, obs: np.ndarray, q_values: np.ndarray) -> dict:
         obs = ptu.from_numpy(obs)
-        q_values = ptu.from_numpy(q_values)
+        
 
+        # mean, std = np.mean(q_values), np.std(q_values)
+        # q_values = (q_values-mean)/(std+10**-5)
+        q_values = ptu.from_numpy(q_values)
         # TODO: update the critic using the observations and q_values
         pred_val = self.forward(obs)
         pred_val = torch.squeeze(pred_val)
-        loss = torch.nn.functional.mse_loss(pred_val, q_values, reduction='mean')
+        # print('pred:', pred_val.shape, pred_val)
+        # print('q:', q_values.shape, q_values)
+        loss = torch.nn.functional.mse_loss(pred_val, q_values)
 
         self.optimizer.zero_grad()
         loss.backward()

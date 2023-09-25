@@ -75,7 +75,7 @@ def run_training_loop(args):
         trajs, envsteps_this_batch = utils.sample_trajectories(
             env, agent.actor, args.batch_size, max_ep_len, render=False
         )
-        print(envsteps_this_batch)
+        # print(envsteps_this_batch)
         total_envsteps += envsteps_this_batch
 
         # trajs should be a list of dictionaries of NumPy arrays, where each dictionary corresponds to a trajectory.
