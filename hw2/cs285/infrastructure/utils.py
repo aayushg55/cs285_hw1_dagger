@@ -12,10 +12,10 @@ from typing import Dict, Tuple, List
 
 
 def sample_trajectory(
-    env: gym.Env, policy: MLPPolicy, max_length: int, render: bool = False
+    env: gym.Env, policy: MLPPolicy, max_length: int, render: bool = False, seed: int = 1
 ) -> Dict[str, np.ndarray]:
     """Sample a rollout in the environment from a policy."""
-    ob = env.reset()
+    ob = env.reset(seed=seed)
     obs, acs, rewards, next_obs, terminals, image_obs = [], [], [], [], [], []
     steps = 0
     while True:
@@ -71,6 +71,7 @@ def sample_trajectories(
     min_timesteps_per_batch: int,
     max_length: int,
     render: bool = False,
+    seed: int = 1
 ) -> Tuple[List[Dict[str, np.ndarray]], int]:
     """Collect rollouts using policy until we have collected min_timesteps_per_batch steps."""
     timesteps_this_batch = 0
@@ -78,7 +79,7 @@ def sample_trajectories(
     # print('min_timesteps_per_batch: {0}, max_len {1}'.format(min_timesteps_per_batch, max_length))
     while timesteps_this_batch < min_timesteps_per_batch:
         # collect rollout
-        traj = sample_trajectory(env, policy, max_length, render)
+        traj = sample_trajectory(env, policy, max_length, render, seed)
         trajs.append(traj)
 
         # count steps
