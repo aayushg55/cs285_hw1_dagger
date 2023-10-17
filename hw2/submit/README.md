@@ -1,0 +1,1 @@
+To replicate the experiments, follow the writeup to see what hyperparameters to change from the default. Generally, all commands are the same as those given in the assignment. To create the figures, run the plotting.ipynb file in the scripts folder.

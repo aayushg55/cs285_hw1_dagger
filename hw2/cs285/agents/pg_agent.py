@@ -63,17 +63,19 @@ class PGAgent(nn.Module):
 
         # step 1: calculate Q values of each (s_t, a_t) point, using rewards (r_0, ..., r_t, ..., r_T)
         q_values: Sequence[np.ndarray] = self._calculate_q_vals(rewards)
-
+        # print(q_values)
         # TODO: flatten the lists of arrays into single arrays, so that the rest of the code can be written in a vectorized
         # way. obs, actions, rewards, terminals, and q_values should all be arrays with a leading dimension of `batch_size`
         # beyond this point.
-
         obs = np.concatenate(obs)
         actions = np.concatenate(actions)
         rewards = np.concatenate(rewards)
         terminals = np.concatenate(terminals)
-        q_values = np.concatenate(q_values)
+        q_values = np.concatenate(q_values, dtype="float32")
+
+        # print(obs.shape, q_values.shape, rewards.shape)
         assert(obs.shape[0] == actions.shape[0] == rewards.shape[0] == terminals.shape[0] == q_values.shape[0])
+        
         # step 2: calculate advantages from Q values
         advantages: np.ndarray = self._estimate_advantage(
             obs, rewards, q_values, terminals
@@ -90,7 +92,6 @@ class PGAgent(nn.Module):
             critic_info: dict = None
             for _ in range(self.baseline_gradient_steps):
                critic_logs.append(self.critic.update(obs, q_values))
-               
             critic_info = critic_logs[-1]
             info.update(critic_info)
 
@@ -128,11 +129,12 @@ class PGAgent(nn.Module):
             advantages = q_values
         else:
             # TODO: run the critic and use it as a baseline
-            values = self.critic(ptu.from_numpy(obs))
+            values = self.critic.forward(ptu.from_numpy(obs))
             values = ptu.to_numpy(values)
-            if len(q_values.shape) == 1:
-                q_values = np.expand_dims(q_values, -1)
-            print(obs.shape, values.shape, q_values.shape)
+            
+            # if len(q_values.shape) == 1:
+            #     q_values = np.expand_dims(q_values, -1)
+            # print(obs.shape, values.shape, q_values.shape)
             assert values.shape == q_values.shape
 
             if self.gae_lambda is None:
@@ -150,7 +152,12 @@ class PGAgent(nn.Module):
                     # TODO: recursively compute advantage estimates starting from timestep T.
                     # HINT: use terminals to handle edge cases. terminals[i] is 1 if the state is the last in its
                     # trajectory, and 0 otherwise.
-                    pass
+                    if terminals[i]: # end state
+                        delta_i = rewards[i] - values[i]
+                        advantages[i] = delta_i
+                    else:
+                        delta_i = rewards[i] + self.gamma * values[i+1] - values[i]
+                        advantages[i] = delta_i + self.gamma * self.gae_lambda * advantages[i+1]
 
                 # remove dummy advantage
                 advantages = advantages[:-1]
