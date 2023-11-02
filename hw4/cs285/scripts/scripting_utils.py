@@ -23,6 +23,7 @@ def make_logger(config: dict) -> Logger:
 
     logdir = config["log_name"] + "_" + time.strftime("%d-%m-%Y_%H-%M-%S")
     logdir = os.path.join(data_path, logdir)
+    print(logdir)
     if not (os.path.exists(logdir)):
         os.makedirs(logdir)
 

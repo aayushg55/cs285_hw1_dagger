@@ -44,7 +44,11 @@ def collect_mbpo_rollout(
         # HINT: get actions from `sac_agent` and `next_ob` predictions from `mb_agent`.
         # Average the ensemble predictions directly to get the next observation.
         # Get the reward using `env.get_reward`.
-
+        ac = sac_agent.get_action(ob)
+        next_ob = torch.mean([mb_agent.get_dynamics_predictions(i, ob, ac)
+                                for i in range(mb_agent.ensemble_size)], 0)
+        rew, _ = env.get_reward(ob, ac)
+        
         obs.append(ob)
         acs.append(ac)
         rewards.append(rew)
@@ -68,13 +72,13 @@ def run_training_loop(
     # set random seeds
     np.random.seed(args.seed)
     torch.manual_seed(args.seed)
-    ptu.init_gpu(use_gpu=not args.no_gpu, gpu_id=args.which_gpu)
+    ptu.init_gpu(use_gpu=args.use_gpu, gpu_id=args.which_gpu)
 
     # make the gym environment
     env = config["make_env"]()
     eval_env = config["make_env"]()
     render_env = config["make_env"](render=True)
-
+    
     ep_len = config["ep_len"] or env.spec.max_episode_steps
 
     discrete = isinstance(env.action_space, gym.spaces.Discrete)
@@ -111,7 +115,6 @@ def run_training_loop(
         actor_agent = sac_agent
 
     total_envsteps = 0
-
     for itr in range(config["num_iters"]):
         print(f"\n\n********** Iteration {itr} ************")
         # collect data
@@ -119,10 +122,18 @@ def run_training_loop(
         if itr == 0:
             # TODO(student): collect at least config["initial_batch_size"] transitions with a random policy
             # HINT: Use `utils.RandomPolicy` and `utils.sample_trajectories`
-            trajs, envsteps_this_batch = ...
+            trajs, envsteps_this_batch = utils.sample_trajectories(
+                env, policy=utils.RandomPolicy(env), 
+                min_timesteps_per_batch=config["initial_batch_size"],
+                max_length=ep_len
+            )
         else:
             # TODO(student): collect at least config["batch_size"] transitions with our `actor_agent`
-            trajs, envsteps_this_batch = ...
+            trajs, envsteps_this_batch = utils.sample_trajectories(
+                env, policy=actor_agent, 
+                min_timesteps_per_batch=config["batch_size"],
+                max_length=ep_len
+            )
 
         total_envsteps += envsteps_this_batch
         logger.log_scalar(total_envsteps, "total_envsteps", itr)
@@ -165,6 +176,13 @@ def run_training_loop(
             # TODO(student): train the dynamics models
             # HINT: train each dynamics model in the ensemble with a *different* batch of transitions!
             # Use `replay_buffer.sample` with config["train_batch_size"].
+            for i in range(mb_agent.ensemble_size):
+                batch = replay_buffer.sample(config["train_batch_size"])
+                step_losses.append(mb_agent.update(i, 
+                                obs=batch['observations'], 
+                                acs=batch['actions'], 
+                                next_obs=batch['next_observations']
+                ))
             all_losses.append(np.mean(step_losses))
 
         # on iteration 0, plot the full learning curve
@@ -226,7 +244,6 @@ def run_training_loop(
         )
         returns = [t["episode_statistics"]["r"] for t in trajs]
         ep_lens = [t["episode_statistics"]["l"] for t in trajs]
-
         logger.log_scalar(np.mean(returns), "eval_return", itr)
         logger.log_scalar(np.mean(ep_lens), "eval_ep_len", itr)
         print(f"Average eval return: {np.mean(returns)}")
@@ -266,7 +283,7 @@ def main():
     parser.add_argument("--num_render_trajectories", "-nvid", type=int, default=0)
 
     parser.add_argument("--seed", type=int, default=1)
-    parser.add_argument("--no_gpu", "-ngpu", action="store_true")
+    parser.add_argument("--use_gpu", "-gpu", type=int, default=0)
     parser.add_argument("--which_gpu", "-g", default=0)
 
     args = parser.parse_args()

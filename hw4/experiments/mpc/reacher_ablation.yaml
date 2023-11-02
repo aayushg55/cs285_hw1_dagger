@@ -15,4 +15,4 @@ mpc_strategy: random
 # change these!
 mpc_num_action_sequences: 1000
 mpc_horizon: 10
-ensemble_size: 3
+ensemble_size: 2
