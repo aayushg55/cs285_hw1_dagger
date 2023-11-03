@@ -28,7 +28,7 @@ class ModelBasedAgent(nn.Module):
         self.cem_num_iters = cem_num_iters
         self.cem_num_elites = cem_num_elites
         self.cem_alpha = cem_alpha
-
+        self.epsilon = 10**-8
         assert mpc_strategy in (
             "random",
             "cem",
@@ -89,15 +89,14 @@ class ModelBasedAgent(nn.Module):
         # directly
         # HINT 3: make sure to avoid any risk of dividing by zero when
         # normalizing vectors by adding a small number to the denominator!
-        epsilon = 10**-6
         delta = next_obs - obs
-        delta = (delta - self.obs_delta_mean)/(self.obs_delta_std + epsilon)
+        delta = (delta - self.obs_delta_mean)/(self.obs_delta_std + self.epsilon)
 
         obs_acs = torch.cat((obs, acs), 1)
-        obs_acs = (obs_acs - self.obs_acs_mean) / (self.obs_acs_std + epsilon)
+        obs_acs = (obs_acs - self.obs_acs_mean) / (self.obs_acs_std + self.epsilon)
         
         pred_delta = self.dynamics_models[i](obs_acs)
-        loss = self.loss_fn(delta,pred_delta)
+        loss = self.loss_fn(delta, pred_delta)
 
         self.optimizer.zero_grad()
         loss.backward()
@@ -127,6 +126,9 @@ class ModelBasedAgent(nn.Module):
         self.obs_delta_mean = torch.mean(delta, dim=0)
         self.obs_delta_std = torch.std(delta, dim=0)
 
+        assert self.obs_acs_mean.shape == torch.Size([self.ob_dim + self.ac_dim])
+        assert self.obs_delta_mean.shape == torch.Size([self.ob_dim])
+
     @torch.no_grad()
     def get_dynamics_predictions(
         self, i: int, obs: np.ndarray, acs: np.ndarray
@@ -147,10 +149,10 @@ class ModelBasedAgent(nn.Module):
         # Same hints as `update` above, avoid nasty divide-by-zero errors when
         # normalizing inputs!
         obs_acs = torch.cat((obs, acs), 1)
-        obs_acs_norm = (obs_acs - self.obs_acs_mean) / (self.obs_acs_std + 10**-6)
+        obs_acs_norm = (obs_acs - self.obs_acs_mean) / (self.obs_acs_std + self.epsilon)
         
         pred_delta = self.dynamics_models[i](obs_acs)
-        pred_delta_unnorm = (pred_delta * (self.obs_delta_std + 10**-6)) + self.obs_delta_mean
+        pred_delta_unnorm = (pred_delta * (self.obs_delta_std + self.epsilon)) + self.obs_delta_mean
         
         pred_next_obs = obs + pred_delta_unnorm
         return ptu.to_numpy(pred_next_obs)
@@ -201,9 +203,13 @@ class ModelBasedAgent(nn.Module):
             # respectively, and returns a tuple of `(rewards, dones)`. You can 
             # ignore `dones`. You might want to do some reshaping to make
             # `next_obs` and `acs` 2-dimensional.
+            # print("****______****")
+            # print(self.ensemble_size, self.ob_dim, self.ac_dim, self.mpc_num_action_sequences)
+            # print(np.reshape(next_obs, (self.ensemble_size * self.mpc_num_action_sequences, -1)).shape)
+            # print(np.tile(acs, (self.ensemble_size, 1)).shape)
             rewards, _ = self.env.get_reward(
                 np.reshape(next_obs, (self.ensemble_size * self.mpc_num_action_sequences, -1)),
-                np.tile(acs, (self.ensemble_size, 1, 1))
+                np.tile(acs, (self.ensemble_size, 1))
             )
             rewards = np.reshape(rewards, (self.ensemble_size, self.mpc_num_action_sequences))
             assert rewards.shape == (self.ensemble_size, self.mpc_num_action_sequences)
