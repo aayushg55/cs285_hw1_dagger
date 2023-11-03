@@ -123,14 +123,16 @@ def run_training_loop(
             # TODO(student): collect at least config["initial_batch_size"] transitions with a random policy
             # HINT: Use `utils.RandomPolicy` and `utils.sample_trajectories`
             trajs, envsteps_this_batch = utils.sample_trajectories(
-                env, policy=utils.RandomPolicy(env), 
+                env, 
+                policy=utils.RandomPolicy(env), 
                 min_timesteps_per_batch=config["initial_batch_size"],
                 max_length=ep_len
             )
         else:
             # TODO(student): collect at least config["batch_size"] transitions with our `actor_agent`
             trajs, envsteps_this_batch = utils.sample_trajectories(
-                env, policy=actor_agent, 
+                env, 
+                policy=actor_agent, 
                 min_timesteps_per_batch=config["batch_size"],
                 max_length=ep_len
             )
@@ -223,6 +225,7 @@ def run_training_loop(
                     )
                 # train SAC
                 batch = sac_replay_buffer.sample(sac_config["batch_size"])
+                batch = ptu.from_numpy(batch)
                 sac_agent.update(
                     batch["observations"],
                     batch["actions"],
@@ -283,7 +286,7 @@ def main():
     parser.add_argument("--num_render_trajectories", "-nvid", type=int, default=0)
 
     parser.add_argument("--seed", type=int, default=1)
-    parser.add_argument("--use_gpu", "-gpu", type=int, default=0)
+    parser.add_argument("--use_gpu", "-gpu", type=int, default=1)
     parser.add_argument("--which_gpu", "-g", default=0)
 
     args = parser.parse_args()

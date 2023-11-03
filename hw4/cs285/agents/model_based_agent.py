@@ -119,6 +119,7 @@ class ModelBasedAgent(nn.Module):
         next_obs = ptu.from_numpy(next_obs)
         # TODO(student): update the statistics
         obs_acs = torch.cat((obs, acs), 1)
+        # print(obs, acs, obs_acs)
         self.obs_acs_mean = torch.mean(obs_acs, dim=0)
         self.obs_acs_std = torch.std(obs_acs, dim=0)
         
@@ -151,7 +152,7 @@ class ModelBasedAgent(nn.Module):
         obs_acs = torch.cat((obs, acs), 1)
         obs_acs_norm = (obs_acs - self.obs_acs_mean) / (self.obs_acs_std + self.epsilon)
         
-        pred_delta = self.dynamics_models[i](obs_acs)
+        pred_delta = self.dynamics_models[i](obs_acs_norm)
         pred_delta_unnorm = (pred_delta * (self.obs_delta_std + self.epsilon)) + self.obs_delta_mean
         
         pred_next_obs = obs + pred_delta_unnorm
@@ -203,6 +204,7 @@ class ModelBasedAgent(nn.Module):
             # respectively, and returns a tuple of `(rewards, dones)`. You can 
             # ignore `dones`. You might want to do some reshaping to make
             # `next_obs` and `acs` 2-dimensional.
+            
             # print("****______****")
             # print(self.ensemble_size, self.ob_dim, self.ac_dim, self.mpc_num_action_sequences)
             # print(np.reshape(next_obs, (self.ensemble_size * self.mpc_num_action_sequences, -1)).shape)
@@ -242,11 +244,30 @@ class ModelBasedAgent(nn.Module):
             best_index = np.argmax(rewards)
             return action_sequences[best_index][0]
         elif self.mpc_strategy == "cem":
-            elite_mean, elite_std = None, None
+            # elite_mean, elite_std = None, None
+            J = self.cem_num_elites
+            elite_mean = np.mean(action_sequences, axis=0)
+            elite_std = np.std(action_sequences, axis=0)
             for i in range(self.cem_num_iters):
                 # TODO(student): implement the CEM algorithm
                 # HINT: you need a special case for i == 0 to initialize
                 # the elite mean and std
-                pass
+                
+                if i != 0: #sample
+                    action_sequences = np.random.normal(
+                        loc=elite_mean,
+                        scale=elite_std,
+                        size=(self.mpc_num_action_sequences, self.mpc_horizon, self.ac_dim),
+                    )
+
+                rewards = self.evaluate_action_sequences(obs, action_sequences)
+                assert rewards.shape == (self.mpc_num_action_sequences,)
+                
+                elites_idx = np.argpartition(rewards, -J)[-J:]
+                elite_mean = self.cem_alpha * np.mean(action_sequences[elites_idx], axis=0) \
+                                + (1-self.cem_alpha)*elite_mean
+                elite_std = self.cem_alpha * np.std(action_sequences[elites_idx], axis=0) \
+                                + (1-self.cem_alpha)*elite_std
+            return elite_mean[0]
         else:
             raise ValueError(f"Invalid MPC strategy '{self.mpc_strategy}'")

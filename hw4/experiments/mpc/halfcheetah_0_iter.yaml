@@ -3,7 +3,7 @@ exp_name: cheetah_0iter
 
 base_config: mpc
 num_layers: 1
-hidden_size: 32
+hidden_size: 64
 
 num_iters: 1
 initial_batch_size: 20000
