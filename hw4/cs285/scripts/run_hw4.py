@@ -39,16 +39,26 @@ def collect_mbpo_rollout(
     rollout_len: int = 1,
 ):
     obs, acs, rewards, next_obs, dones = [], [], [], [], []
+    no_batch = ob.ndim == 1
     for _ in range(rollout_len):
         # TODO(student): collect a rollout using the learned dynamics models
         # HINT: get actions from `sac_agent` and `next_ob` predictions from `mb_agent`.
         # Average the ensemble predictions directly to get the next observation.
         # Get the reward using `env.get_reward`.
         ac = sac_agent.get_action(ob)
-        next_ob = torch.mean([mb_agent.get_dynamics_predictions(i, ob, ac)
-                                for i in range(mb_agent.ensemble_size)], 0)
+        if no_batch:
+            ob = np.expand_dims(ob, axis=0)
+            ac = np.expand_dims(ac, axis=0)
+        next_ob = np.mean([mb_agent.get_dynamics_predictions(i, ob, ac)
+                                for i in range(mb_agent.ensemble_size)], axis=0)
         rew, _ = env.get_reward(ob, ac)
         
+        if no_batch:
+            rew = rew.squeeze(0)
+            ob = ob.squeeze(0)
+            next_ob = next_ob.squeeze(0)
+            ac = ac.squeeze(0)
+            
         obs.append(ob)
         acs.append(ac)
         rewards.append(rew)
